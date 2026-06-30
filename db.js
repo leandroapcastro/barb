@@ -15,8 +15,15 @@ const crypto = require("crypto");
 const Database = require("better-sqlite3");
 
 const BASE_DIR = path.join(__dirname);
-const DB_FILE = path.join(BASE_DIR, "barbearia-prod.sqlite");
 const SCHEMA_FILE = path.join(BASE_DIR, "schema.sql");
+
+// Em produção no Fly.io existe um volume persistente montado em /data
+// (ver fly.toml: [[mounts]] destination = "/data"). Sem isso, o banco
+// SQLite seria gravado no filesystem efêmero do container e os dados
+// se perderiam a cada restart/deploy. Em desenvolvimento local, /data
+// normalmente não existe, então caímos de volta para a pasta do projeto.
+const DATA_DIR = fs.existsSync("/data") ? "/data" : BASE_DIR;
+const DB_FILE = process.env.DB_FILE || path.join(DATA_DIR, "barbearia-prod.sqlite");
 
 let db;
 
