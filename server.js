@@ -599,9 +599,21 @@ function serveStatic(req, res, pathname) {
     filePath = path.join(PUBLIC_DIR, "index.html");
   }
 
+  if (!fs.existsSync(filePath)) {
+    console.error(`[STATIC] Arquivo nao encontrado: ${filePath}`);
+    return sendError(res, 500, "Arquivos da aplicacao nao encontrados no servidor. Verifique o deploy.");
+  }
+
   const ext = path.extname(filePath).toLowerCase();
   res.writeHead(200, { "Content-Type": MIME_TYPES[ext] || "application/octet-stream" });
-  fs.createReadStream(filePath).pipe(res);
+
+  const stream = fs.createReadStream(filePath);
+  stream.on("error", (err) => {
+    console.error(`[STATIC] Erro ao ler ${filePath}:`, err.message);
+    if (!res.headersSent) sendError(res, 500, "Erro ao servir arquivo.");
+    else res.destroy();
+  });
+  stream.pipe(res);
 }
 
 // ---------------------------------------------------------------------------
@@ -609,6 +621,39 @@ function serveStatic(req, res, pathname) {
 // ---------------------------------------------------------------------------
 
 db.applySchema();
+
+if (!fs.existsSync(PUBLIC_DIR) || fs.readdirSync(PUBLIC_DIR).length === 0) {
+  console.error(`[BOOT] ATENCAO: a pasta "public" nao existe ou esta vazia em ${PUBLIC_DIR}.`);
+  console.error(`[BOOT] O frontend nao vai funcionar ate isso ser corrigido no deploy (verifique Dockerfile/.dockerignore).`);
+} else {
+  console.log(`[BOOT] Pasta public encontrada com ${fs.readdirSync(PUBLIC_DIR).length} item(ns).`);
+}
+
+// ---------------------------------------------------------------------------
+// Seed automático opcional
+// ---------------------------------------------------------------------------
+// Se o banco estiver vazio (nenhum tenant cadastrado) e a env var
+// AUTO_SEED_DEMO estiver definida como "true", cria a barbearia de
+// demonstração automaticamente no boot. Isso evita depender de SSH manual
+// em ambientes onde isso é difícil de acessar (ex: plano trial do Fly.io
+// com a máquina sempre suspensa). Recomendado deixar essa variável apenas
+// enquanto estiver testando — remova depois de já ter dados reais.
+if (process.env.AUTO_SEED_DEMO === "true") {
+  (async () => {
+    try {
+      const hasTenants = db.getConnection().prepare("SELECT COUNT(*) AS count FROM tenants").get().count > 0;
+      if (!hasTenants) {
+        console.log("[BOOT] AUTO_SEED_DEMO=true e nenhum tenant encontrado. Criando barbearia de demonstracao...");
+        const { seedDemoTenant } = require("./scripts/seed-demo");
+        await seedDemoTenant();
+      } else {
+        console.log("[BOOT] AUTO_SEED_DEMO=true mas ja existem tenants cadastrados. Pulando seed.");
+      }
+    } catch (err) {
+      console.error("[BOOT] Falha ao rodar seed automatico:", err.message);
+    }
+  })();
+}
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
