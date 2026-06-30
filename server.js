@@ -14,7 +14,8 @@ const { resolveTenantSlug, isValidSlug } = require("./tenant");
 // Configuração
 // ---------------------------------------------------------------------------
 
-const PORT = Number(process.env.PORT) || 3000;
+const PORT = Number(process.env.PORT) || 8080;
+const HOST = process.env.HOST || "0.0.0.0";
 const PUBLIC_DIR = path.join(__dirname, "public");
 const NOTIFICATION_POLL_MS = 30 * 1000; // processa fila a cada 30s
 
@@ -628,7 +629,7 @@ setInterval(() => {
 // Limpa sessões expiradas a cada hora
 setInterval(() => db.purgeExpiredSessions(), 60 * 60 * 1000);
 
-server.listen(PORT, () => {
-  console.log(`Sistema multi-tenant rodando em http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Sistema multi-tenant rodando em http://${HOST}:${PORT}`);
   console.log(`Dica de desenvolvimento: use ?tenant=SLUG ou o header X-Tenant-Slug para identificar a barbearia.`);
 });
