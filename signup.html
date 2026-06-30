@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cadastrar barbearia — Sistema da Barbearia</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="auth-page">
+    <main class="auth-shell">
+      <section class="auth-copy">
+        <p class="eyebrow">Comece agora</p>
+        <h1>Coloque a agenda, o caixa e o financeiro da sua barbearia num só lugar</h1>
+        <p>Cadastro leva menos de dois minutos. Você ganha 14 dias de teste, sem compromisso.</p>
+
+        <div class="receipt-mark" aria-hidden="true">
+          <div class="receipt-line"><span>Agenda online para clientes</span><span>✓</span></div>
+          <div class="receipt-line"><span>Frente de caixa com leitor de código</span><span>✓</span></div>
+          <div class="receipt-line"><span>Controle de estoque</span><span>✓</span></div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-line"><span>Contas a pagar</span><span>✓</span></div>
+          <div class="receipt-line"><span>Comissão por barbeiro</span><span>✓</span></div>
+        </div>
+      </section>
+
+      <form class="auth-card" id="signupForm">
+        <h2>Cadastrar barbearia</h2>
+        <p class="auth-subtitle">Crie a conta principal (administrador).</p>
+
+        <label>
+          Nome da barbearia
+          <input name="barbershopName" id="barbershopName" required placeholder="Barbearia Modelo">
+        </label>
+
+        <label>
+          Endereço de acesso
+          <input name="slug" id="slugInput" required placeholder="barbearia-modelo" autocomplete="off">
+        </label>
+        <p class="slug-preview" id="slugPreview">Seu endereço: <strong>—</strong></p>
+
+        <label>
+          Seu nome
+          <input name="adminName" required placeholder="Seu nome completo">
+        </label>
+
+        <label>
+          Seu e-mail
+          <input name="adminEmail" type="email" required placeholder="voce@email.com" autocomplete="email">
+        </label>
+
+        <label>
+          Senha
+          <input name="adminPassword" type="password" required minlength="8" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+        </label>
+
+        <button class="button button-block" type="submit">Criar minha conta</button>
+        <p class="form-message" id="signupMessage"></p>
+        <p class="hint">
+          Já tem uma conta?
+          <a class="auth-switch" href="/login.html">Entrar</a>
+        </p>
+      </form>
+    </main>
+
+    <script src="/tenant-client.js"></script>
+    <script src="/signup.js"></script>
+  </body>
+</html>

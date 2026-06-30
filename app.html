@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel — Sistema da Barbearia</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="app-page">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <strong>Barbearia</strong>
+        <span>Sistema integrado</span>
+      </div>
+      <nav class="module-nav" id="moduleNav">
+        <button data-module="dashboard">Painel</button>
+        <button data-module="agenda" data-permission="agenda">Agenda</button>
+        <button data-module="caixa" data-permission="caixa">Frente de Caixa</button>
+        <button data-module="estoque" data-permission="estoque">Estoque</button>
+        <button data-module="financeiro" data-permission="financeiro">Contas a pagar</button>
+        <button data-module="comissoes" data-permission="comissoes">Comissões</button>
+        <button data-module="usuarios" data-permission="usuarios">Usuários</button>
+        <button data-module="configuracoes" data-permission="financeiro">Configurações</button>
+      </nav>
+      <button class="button button-light" id="logoutButton">Sair</button>
+    </aside>
+
+    <main class="app-main">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Painel interno</p>
+          <h1 id="pageTitle">Painel</h1>
+        </div>
+        <div class="user-pill" id="userPill"></div>
+      </header>
+
+      <section class="module active" id="module-dashboard">
+        <div class="alert-stack" id="panelAlerts"></div>
+        <div class="metric-grid" id="metricGrid"></div>
+        <div class="split-grid manager-only">
+          <article class="panel">
+            <h2>Vendas por dia</h2>
+            <div class="chart-bars" id="salesChart"></div>
+          </article>
+          <article class="panel">
+            <h2>Formas de pagamento</h2>
+            <div class="chart-bars" id="paymentChart"></div>
+          </article>
+        </div>
+        <div class="split-grid">
+          <article class="panel">
+            <h2>Agenda de hoje</h2>
+            <div id="todayAppointments"></div>
+          </article>
+          <article class="panel">
+            <h2>Alertas de estoque</h2>
+            <div id="lowStock"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="module" id="module-agenda">
+        <div class="split-grid">
+          <form class="panel form" id="appointmentForm">
+            <h2>Novo agendamento</h2>
+            <label>Cliente <input name="clientName" required></label>
+            <label>Telefone <input name="clientPhone" required></label>
+            <label>E-mail <span style="font-weight:400">(opcional)</span> <input name="clientEmail" type="email"></label>
+            <label>Serviço <select name="serviceId" id="appointmentService"></select></label>
+            <label>Profissional <select name="barberId" id="appointmentBarber"></select></label>
+            <label>Data <input name="date" type="date" required></label>
+            <input name="time" id="appointmentTime" type="hidden" required>
+            <div>
+              <span class="field-title">Horários livres</span>
+              <div class="time-grid" id="timeGrid"></div>
+            </div>
+            <button class="button" type="submit">Salvar horário</button>
+          </form>
+          <article class="panel">
+            <h2>Horários</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Data</th><th>Hora</th><th>Cliente</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="appointmentRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="module" id="module-caixa">
+        <div class="pos-layout">
+          <article class="panel pos-catalog">
+            <div class="toolbar">
+              <label>Código de barras <input id="barcodeInput" placeholder="Digite ou bipe o código"></label>
+              <button class="button" id="addBarcodeProduct" type="button">Adicionar</button>
+            </div>
+            <h2>Serviços</h2>
+            <div class="card-grid" id="serviceCards"></div>
+            <h2>Produtos</h2>
+            <div class="card-grid" id="productCards"></div>
+          </article>
+
+          <aside class="panel pos-cart">
+            <h2>Carrinho</h2>
+            <label>Cliente <input id="saleClientName" placeholder="Cliente Balcão"></label>
+            <label>Profissional <select id="saleBarber"></select></label>
+            <div class="cart-list" id="cartList"></div>
+            <div class="cart-total">
+              <span>Total</span>
+              <strong id="cartTotal">R$ 0,00</strong>
+            </div>
+            <label>Pagamento
+              <select id="salePaymentMethod">
+                <option value="dinheiro">Dinheiro</option>
+                <option value="pix">Pix</option>
+                <option value="cartao">Cartão</option>
+              </select>
+            </label>
+            <label class="check-row"><input id="printReceipt" type="checkbox" checked> Imprimir cupom não fiscal</label>
+            <button class="button button-block" id="finishSale" type="button">Finalizar venda</button>
+            <p class="hint">Produtos vendidos aqui baixam o estoque automaticamente.</p>
+          </aside>
+        </div>
+        <article class="panel">
+          <h2>Vendas recentes</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Data</th><th>Cliente</th><th>Profissional</th><th>Total</th></tr>
+              </thead>
+              <tbody id="saleRows"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="module" id="module-estoque">
+        <div class="split-grid">
+          <form class="panel form" id="stockForm">
+            <h2>Novo produto</h2>
+            <label>Produto <input name="name" required></label>
+            <label>Código de barras <input name="barcode" placeholder="7890000000000"></label>
+            <label>Quantidade <input name="quantity" type="number" min="0" required></label>
+            <label>Mínimo <input name="minQuantity" type="number" min="0" required></label>
+            <label>Custo <input name="unitCost" type="number" min="0" step="0.01" required></label>
+            <label>Venda <input name="salePrice" type="number" min="0" step="0.01" required></label>
+            <button class="button" type="submit">Adicionar</button>
+          </form>
+          <article class="panel">
+            <h2>Estoque</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Produto</th><th>Código</th><th>Qtd</th><th>Mín</th><th>Venda</th></tr>
+                </thead>
+                <tbody id="stockRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="module" id="module-financeiro">
+        <div class="split-grid">
+          <form class="panel form" id="payableForm">
+            <h2>Nova conta</h2>
+            <label>Descrição <input name="description" required></label>
+            <label>Vencimento <input name="dueDate" type="date" required></label>
+            <label>Valor <input name="amount" type="number" min="0" step="0.01" required></label>
+            <button class="button" type="submit">Adicionar conta</button>
+          </form>
+          <article class="panel">
+            <h2>Contas a pagar</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Vencimento</th><th>Descrição</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="payableRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="module" id="module-comissoes">
+        <div class="panel toolbar">
+          <label>Período <input id="payrollPeriod" type="month"></label>
+          <button class="button" id="recalculatePayroll">Recalcular comissões</button>
+        </div>
+        <article class="panel">
+          <h2>Pagamentos</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Funcionário</th><th>Período</th><th>Salário</th><th>Comissão</th><th>Status</th></tr>
+              </thead>
+              <tbody id="payrollRows"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="module" id="module-usuarios">
+        <div class="split-grid">
+          <form class="panel form" id="userForm">
+            <h2>Novo usuário</h2>
+            <label>Nome <input name="name" required></label>
+            <label>E-mail <input name="email" type="email" required></label>
+            <label>Senha <input name="password" type="password" required minlength="8" placeholder="Mínimo 8 caracteres"></label>
+            <label>Nível
+              <select name="role">
+                <option value="barbeiro">Barbeiro</option>
+                <option value="gerente">Gerente</option>
+                <option value="admin">Admin</option>
+              </select>
+            </label>
+            <label>Comissão <input name="commissionRate" type="number" min="0" max="1" step="0.01" value="0.4"></label>
+            <button class="button" type="submit">Criar usuário</button>
+          </form>
+          <article class="panel">
+            <h2>Usuários</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Nome</th><th>E-mail</th><th>Nível</th><th>Comissão</th></tr>
+                </thead>
+                <tbody id="userRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="module" id="module-configuracoes">
+        <form class="panel form settings-form" id="settingsForm" style="max-width: 760px;">
+          <h2>Impressora e painel</h2>
+          <label>Nome da impressora <input name="printer.name" id="printerName"></label>
+          <label>Tamanho do papel
+            <select name="printer.paperWidth" id="printerPaperWidth">
+              <option value="58mm">58mm</option>
+              <option value="80mm">80mm</option>
+              <option value="A4">A4</option>
+            </select>
+          </label>
+          <label>Cópias <input name="printer.copies" id="printerCopies" type="number" min="1" max="5"></label>
+          <label>Rodapé do cupom <input name="printer.receiptFooter" id="receiptFooter"></label>
+          <label>Dias para alerta de contas <input name="dashboard.payableAlertDays" id="payableAlertDays" type="number" min="1" max="60"></label>
+          <label>Início da agenda <input name="agenda.startTime" id="agendaStartTime" type="time"></label>
+          <label>Fim da agenda <input name="agenda.endTime" id="agendaEndTime" type="time"></label>
+          <label>Intervalo dos horários
+            <select name="agenda.slotMinutes" id="agendaSlotMinutes">
+              <option value="15">15 minutos</option>
+              <option value="30">30 minutos</option>
+              <option value="45">45 minutos</option>
+              <option value="60">60 minutos</option>
+            </select>
+          </label>
+          <button class="button" type="submit">Salvar configurações</button>
+        </form>
+      </section>
+
+      <p class="toast" id="toast"></p>
+    </main>
+
+    <script src="/tenant-client.js"></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

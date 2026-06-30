@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar — Sistema da Barbearia</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body class="auth-page">
+    <main class="auth-shell">
+      <section class="auth-copy">
+        <p class="eyebrow">Sistema interno</p>
+        <h1>Entre para gerenciar agenda, caixa e administração</h1>
+        <p>Acesse com o e-mail e a senha cadastrados pela sua barbearia.</p>
+
+        <div class="receipt-mark" aria-hidden="true">
+          <div class="receipt-line"><span>Agenda</span><span>✓</span></div>
+          <div class="receipt-line"><span>Frente de caixa</span><span>✓</span></div>
+          <div class="receipt-line"><span>Estoque</span><span>✓</span></div>
+          <div class="receipt-divider"></div>
+          <div class="receipt-line"><span>Financeiro</span><span>✓</span></div>
+          <div class="receipt-line"><span>Comissões</span><span>✓</span></div>
+        </div>
+      </section>
+
+      <form class="auth-card" id="loginForm">
+        <h2>Acessar</h2>
+        <p class="auth-subtitle">Use a conta da sua barbearia.</p>
+        <label>
+          E-mail
+          <input name="email" type="email" required autocomplete="username">
+        </label>
+        <label>
+          Senha
+          <input name="password" type="password" required autocomplete="current-password">
+        </label>
+        <button class="button button-block" type="submit">Entrar</button>
+        <p class="form-message" id="loginMessage"></p>
+        <p class="hint">
+          Ainda não tem uma conta?
+          <a class="auth-switch" href="/signup.html">Cadastre sua barbearia</a>
+        </p>
+        <a href="/">Voltar para o site público</a>
+      </form>
+    </main>
+
+    <script src="/tenant-client.js"></script>
+    <script src="/login.js"></script>
+  </body>
+</html>

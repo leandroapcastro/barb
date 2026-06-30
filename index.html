@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Barbearia</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="public-hero">
+      <nav class="public-nav">
+        <span class="brand-mark" id="brandName">Barbearia</span>
+        <div>
+          <nav>
+            <a href="#servicos">Serviços</a>
+            <a href="#agendar">Agendar</a>
+          </nav>
+          <a class="button button-light" href="/login.html">Área interna</a>
+        </div>
+      </nav>
+
+      <section class="hero-content">
+        <p class="eyebrow">Atendimento com hora marcada</p>
+        <h1>Corte, barba e cuidado masculino em um só lugar</h1>
+        <p id="companySlogan">Carregando...</p>
+        <div class="hero-actions">
+          <a class="button" href="#agendar">Agendar horário</a>
+          <a class="button button-light" href="#servicos">Ver serviços</a>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section class="section two-columns">
+        <div>
+          <p class="eyebrow">Sobre</p>
+          <h2>Uma experiência simples para o cliente, organizada para a equipe</h2>
+          <p>
+            Este site é conectado ao sistema interno da barbearia. Quando você solicita um
+            horário aqui, o pedido aparece direto na agenda usada pelos profissionais.
+          </p>
+        </div>
+        <div class="info-panel">
+          <div class="info-row">
+            <div>
+              <strong>Endereço</strong>
+              <span id="companyAddress">—</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div>
+              <strong>Telefone</strong>
+              <span id="companyPhone">—</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div>
+              <strong>Horário de funcionamento</strong>
+              <span id="companyHours">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="servicos">
+        <div class="section-title">
+          <p class="eyebrow">Serviços</p>
+          <h2>Escolha seu atendimento</h2>
+        </div>
+        <div class="service-grid" id="serviceGrid"></div>
+      </section>
+
+      <section class="section booking-band" id="agendar">
+        <div class="section-title">
+          <p class="eyebrow">Agenda pública</p>
+          <h2>Solicite um horário</h2>
+        </div>
+        <form class="form booking-form" id="publicBookingForm">
+          <label>
+            Nome
+            <input name="clientName" required placeholder="Seu nome">
+          </label>
+          <label>
+            Telefone
+            <input name="clientPhone" required placeholder="(11) 99999-9999">
+          </label>
+          <label>
+            E-mail <span style="font-weight:400">(opcional, para receber confirmação)</span>
+            <input name="clientEmail" type="email" placeholder="voce@email.com">
+          </label>
+          <label>
+            Serviço
+            <select name="serviceId" id="publicServiceSelect" required></select>
+          </label>
+          <label>
+            Profissional
+            <select name="barberId" id="publicBarberSelect" required></select>
+          </label>
+          <label>
+            Data
+            <input name="date" type="date" required>
+          </label>
+          <label>
+            Hora
+            <input name="time" type="time" required>
+          </label>
+          <button class="button" type="submit">Enviar solicitação</button>
+          <p class="form-message" id="publicMessage"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <strong id="footerBrand">Barbearia</strong>
+      <span>Sistema integrado de agenda, caixa e administração.</span>
+    </footer>
+
+    <script src="/tenant-client.js"></script>
+    <script src="/site.js"></script>
+  </body>
+</html>

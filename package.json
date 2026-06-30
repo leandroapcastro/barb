@@ -1,0 +1,24 @@
+{
+  "name": "barbearia-sistema",
+  "version": "2.0.0",
+  "description": "Sistema multi-tenant para barbearias com agenda, caixa, estoque, financeiro e notificacoes.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed:demo": "node scripts/seed-demo.js"
+  },
+  "keywords": [
+    "barbearia",
+    "agenda",
+    "caixa",
+    "estoque",
+    "multi-tenant",
+    "saas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "bcryptjs": "^2.4.3"
+  }
+}
