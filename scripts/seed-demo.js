@@ -88,7 +88,13 @@ async function main() {
   console.log("  Barbeiro: barbeiro@barbeariamodelo.com / Barbeiro@123");
 }
 
-main().catch((err) => {
-  console.error("Erro ao gerar seed de demonstracao:", err);
-  process.exit(1);
-});
+module.exports = { seedDemoTenant: main };
+
+if (require.main === module) {
+  main()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error("Erro ao gerar seed de demonstracao:", err);
+      process.exit(1);
+    });
+}
