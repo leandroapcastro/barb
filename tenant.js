@@ -15,7 +15,12 @@
  * tratado como a área de marketing/cadastro — não pertence a nenhum tenant.
  */
 
+// Domínios raiz que nunca têm subdomínio de tenant
 const ROOT_HOSTS = new Set(["localhost", "127.0.0.1"]);
+
+// Domínios de plataforma onde o "subdomínio" é o nome da app, não o tenant.
+// Nesses casos ignoramos o host e usamos os fallbacks (header ou query string).
+const PLATFORM_DOMAINS = new Set(["fly.dev", "fly.io", "vercel.app", "netlify.app", "railway.app", "render.com"]);
 
 function extractSlugFromHost(hostHeader) {
   if (!hostHeader) return null;
@@ -26,9 +31,17 @@ function extractSlugFromHost(hostHeader) {
 
   const parts = hostname.split(".");
 
-  // ex: barbearia-modelo.localhost → ["barbearia-modelo", "localhost"]
-  // ex: barbearia-modelo.seusite.com → ["barbearia-modelo", "seusite", "com"]
+  // Verifica se o domínio base é uma plataforma de hospedagem.
+  // ex: barbear.fly.dev → base = "fly.dev" → ignora, usa fallback
+  // ex: barbearia-modelo.seusite.com → base = "seusite.com" → usa "barbearia-modelo"
   if (parts.length >= 2) {
+    const baseDomain = parts.slice(-2).join(".");
+    if (PLATFORM_DOMAINS.has(baseDomain)) return null;
+  }
+
+  // Domínio próprio com subdomínio real
+  // ex: barbearia-modelo.seusite.com → ["barbearia-modelo", "seusite", "com"]
+  if (parts.length >= 3) {
     const candidate = parts[0];
     if (candidate && candidate !== "www") return candidate;
   }
