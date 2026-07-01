@@ -1,59 +1,76 @@
 /**
  * tenant-client.js — helper compartilhado pelo frontend.
  *
- * Em produção, o subdomínio (ex: barbearia-modelo.seusite.com) já identifica
- * o tenant sozinho — o backend lê isso do header Host, então o frontend não
- * precisa fazer nada além de chamar fetch() normalmente.
+ * Estratégia de identificação do tenant (em ordem de prioridade):
+ * 1. Subdomínio real (barbearia-modelo.seusite.com) — lido pelo backend via Host header
+ * 2. Query string ?tenant=slug — fallback para qualquer ambiente sem subdomínio
+ *    (inclui barbear.fly.dev, localhost, etc.)
  *
- * Em desenvolvimento local (localhost), propagamos o parâmetro ?tenant=slug
- * por toda navegação e o repassamos como header X-Tenant-Slug em cada
- * chamada de API, para simular o comportamento de subdomínio sem precisar
- * configurar DNS local.
+ * Este arquivo garante que o ?tenant= seja propagado automaticamente em toda
+ * navegação interna e em todas as chamadas de API.
  */
 
-const DEV_HOSTS = new Set(["localhost", "127.0.0.1"]);
-
-function isDevHost() {
-  return DEV_HOSTS.has(window.location.hostname);
-}
-
-function getDevTenantSlug() {
+function getTenantSlug() {
+  // Tenta pegar do subdomínio primeiro
+  const parts = window.location.hostname.split(".");
+  if (parts.length >= 3) {
+    const candidate = parts[0];
+    if (candidate && candidate !== "www") return candidate;
+  }
+  // Fallback: query string
   return new URLSearchParams(window.location.search).get("tenant") || "";
 }
 
+function needsTenantParam() {
+  // Só precisa propagar via query string se NÃO tiver subdomínio real
+  const parts = window.location.hostname.split(".");
+  return parts.length < 3 || parts[0] === "www";
+}
+
 /**
- * Garante que links internos da página carreguem o ?tenant=slug em dev,
- * para a navegação entre index/login/app preservar o contexto.
+ * Propaga ?tenant= em todos os links internos da página.
  */
 function propagateTenantInLinks() {
-  if (!isDevHost()) return;
-  const slug = getDevTenantSlug();
-  if (!slug) return;
+  const slug = getTenantSlug();
+  if (!slug || !needsTenantParam()) return;
 
   document.querySelectorAll("a[href]").forEach((link) => {
     const href = link.getAttribute("href");
     if (!href || href.startsWith("http") || href.startsWith("#")) return;
-    const url = new URL(href, window.location.origin);
-    if (!url.searchParams.has("tenant")) {
-      url.searchParams.set("tenant", slug);
-      link.setAttribute("href", url.pathname + url.search);
-    }
+    try {
+      const url = new URL(href, window.location.origin);
+      if (!url.searchParams.has("tenant")) {
+        url.searchParams.set("tenant", slug);
+        link.setAttribute("href", url.pathname + url.search);
+      }
+    } catch {}
   });
 }
 
 /**
- * Wrapper de fetch que injeta o header de tenant em desenvolvimento local.
- * Use no lugar de fetch() direto em todo o frontend.
+ * Wrapper de fetch que injeta o header X-Tenant-Slug quando não há subdomínio.
  */
 async function apiFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };
+  const slug = getTenantSlug();
 
-  if (isDevHost()) {
-    const slug = getDevTenantSlug();
-    if (slug) headers["X-Tenant-Slug"] = slug;
+  if (slug && needsTenantParam()) {
+    headers["X-Tenant-Slug"] = slug;
   }
 
   return fetch(path, { ...options, headers });
+}
+
+/**
+ * Retorna a URL de redirecionamento preservando o tenant.
+ * Use no lugar de window.location.href = "/pagina.html"
+ */
+function tenantUrl(path) {
+  const slug = getTenantSlug();
+  if (!slug || !needsTenantParam()) return path;
+  const url = new URL(path, window.location.origin);
+  url.searchParams.set("tenant", slug);
+  return url.pathname + url.search;
 }
 
 document.addEventListener("DOMContentLoaded", propagateTenantInLinks);

@@ -28,8 +28,7 @@ document.getElementById("loginForm").addEventListener("submit", async (event) =>
       return;
     }
 
-    const dev = new URLSearchParams(window.location.search).get("tenant");
-    window.location.href = dev ? `/app.html?tenant=${encodeURIComponent(dev)}` : "/app.html";
+    window.location.href = tenantUrl("/app.html");
   } catch {
     setMessage(message, "Erro de conexao. Tente novamente.", "error");
     submitButton.disabled = false;

@@ -41,8 +41,7 @@ async function api(path, options = {}) {
 }
 
 function redirectToLogin() {
-  const dev = new URLSearchParams(window.location.search).get("tenant");
-  window.location.href = dev ? `/login.html?tenant=${encodeURIComponent(dev)}` : "/login.html";
+  window.location.href = tenantUrl("/login.html");
 }
 
 function getServiceName(id) {
