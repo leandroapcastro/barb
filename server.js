@@ -638,22 +638,21 @@ if (!fs.existsSync(PUBLIC_DIR) || fs.readdirSync(PUBLIC_DIR).length === 0) {
 // em ambientes onde isso é difícil de acessar (ex: plano trial do Fly.io
 // com a máquina sempre suspensa). Recomendado deixar essa variável apenas
 // enquanto estiver testando — remova depois de já ter dados reais.
-if (process.env.AUTO_SEED_DEMO === "true") {
-  (async () => {
-    try {
-      const hasTenants = db.getConnection().prepare("SELECT COUNT(*) AS count FROM tenants").get().count > 0;
-      if (!hasTenants) {
-        console.log("[BOOT] AUTO_SEED_DEMO=true e nenhum tenant encontrado. Criando barbearia de demonstracao...");
-        const { seedDemoTenant } = require("./scripts/seed-demo");
-        await seedDemoTenant();
-      } else {
-        console.log("[BOOT] AUTO_SEED_DEMO=true mas ja existem tenants cadastrados. Pulando seed.");
-      }
-    } catch (err) {
-      console.error("[BOOT] Falha ao rodar seed automatico:", err.message);
+(async () => {
+  try {
+    const hasTenants = db.getConnection().prepare("SELECT COUNT(*) AS count FROM tenants").get().count > 0;
+    if (!hasTenants) {
+      console.log("[BOOT] Banco vazio. Criando barbearia de demonstracao automaticamente...");
+      const { seedDemoTenant } = require("./scripts/seed-demo");
+      await seedDemoTenant();
+      console.log("[BOOT] Barbearia de demonstracao criada. Acesse com ?tenant=barbearia-modelo");
+    } else {
+      console.log("[BOOT] Tenants ja existem no banco. Seed pulado.");
     }
-  })();
-}
+  } catch (err) {
+    console.error("[BOOT] Falha ao verificar/criar seed:", err.message);
+  }
+})();
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
